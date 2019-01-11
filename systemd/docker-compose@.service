@@ -1,0 +1,90 @@
+#La configuration de Systemd se base sur des unités (units) qui ont un nom et un type.
+ 
+######################################################################
+#La section [Unit] contient de l'information générique sur le service#
+######################################################################
+#https://www.freedesktop.org/software/systemd/man/systemd.unit.html#
+[Unit]
+#Description de l'Unité
+Description=dc-%i
+
+# Requirements
+Requires=docker.service
+
+# Dependency ordering
+After=docker.service
+
+# Type de l'Unité systemd.
+#Les différents types d'unités sont : 
+#    service : pour un service/démon ;
+#    socket : pour une socket réseau (de tous types : UNIX, Internet, fichier etc.) ;
+#    mount : pour un système de fichiers (exemple : home.mount), tout en utilisant /etc/fstab ;
+#    swap : pour les partitions d'échanges ;
+#    automount : pour un système de fichiers monté à la demande ;
+#    device : pour un périphérique ;
+#    timer : pour l'activation basée sur une date ;
+#    path : pour l'activation basée sur des fichiers ou des répertoires ;
+#    target : macro-unité qui permet de grouper plusieurs unités (exemple : multi-user.target pour définir une cible) ;
+#                Ce sont les niveaux d'exécutions de l'ancien init.
+#    snapshot : unités utilisées pour sauvegarder l’état actuel des services et les restaurer ensuite, par exemple avant de passer en veille.
+#Dans cet exemple c'est un service, celui de la base graphe neo4j, qui est notre "unité".
+#########################################################################
+#La section [Service] concerne l'information sur le service en lui-même.#
+#########################################################################
+#https://www.freedesktop.org/software/systemd/man/systemd.service.html
+[Service]
+
+EnvironmentFile=/etc/environment
+#Lance le service dans un processus système indépendant. 
+# simple, forking, oneshot, dbus, notify ou idle sont les valeurs possibles de Type=.
+#Type=forking
+
+#Démarrer le service.
+ExecStart=/usr/local/bin/docker-compose up
+
+#Arrêter le service.
+ExecStop=/usr/local/bin/docker-compose down -v
+
+#Redémarrer le service.
+ExecReload=/usr/local/bin/docker-compose restart
+
+#Ne doit pas considérer que le service est actif lorsque le processus c'est terminé normalement.
+RemainAfterExit=no
+
+#Configure si le service doit être redémarré une fois le processus de service terminé, tué ou si le délai d'attente est atteint.
+#                            *Restart=*    no    always    on-success    on-failure    on-abnormal    on-abort    on-watchdog
+# *Choix redémarrage*                  +_______+_________+____________+_____________+______________+___________+_______________+
+#           Fin normale ou par signal  |       |    X    |      X     |             |              |           |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#        Fin d’exécution avec erreurs  |       |    X    |            |      X      |              |           |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#                       Processus tué  |       |    X    |            |      X      |      X       |     X     |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#             délai d'attente atteint  |       |    X    |            |      X      |      X       |           |               |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+#                            Watchdog  |       |    X    |            |      X      |      X       |           |       X       |
+#                                      +_______+_________+____________+_____________+______________+___________+_______________+
+Restart=on-failure
+
+#Définit des limites logicielles ou matérielles pour le processus exécuté.
+#https://www.freedesktop.org/software/systemd/man/systemd.exec.html#
+# Correspond à ulimit -n 60000. 
+# C'est le nombre maximum de fichiers pouvant être ouvert simultanément pour les processus fils du service.
+LimitNOFILE=60000
+
+#Une directive pour configurer TimeoutStartSec = et TimeoutStopSec = à la valeur spécifiée.
+# TimeoutStartSec= configure le délai d'attente pour attendre le démarrage du service.
+# TimeoutStopSec = configure le temps d'attente pour attendre l'arrêt du service.
+#TimeoutSec=60
+#TimeoutStartSec=60
+#TimeoutStopSec=15
+#RestartSec=30
+
+WorkingDirectory=/etc/docker-compose/%i/
+
+##############################################################################################################################
+# La section [Install] s'occupe des circonstances et des déclencheurs dans le cadre desquels le service devrait être démarré.#
+##############################################################################################################################
+[Install]
+#S'exécute dans le niveau d'exécution multi utilisateur
+WantedBy=multi-user.target

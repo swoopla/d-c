@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker run -it --rm jturpin/htpasswd $1 $2 |sed -e 's#\$#$$#g'

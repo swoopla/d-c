@@ -1,0 +1,11 @@
+[Unit]
+Description=Run docker-compose Pulling working hourly
+Requires=docker-compose@%i.service
+
+[Timer]
+# Explicitly declare service that this timer is responsible for
+Unit=pull-docker-compose@%i.service
+OnCalendar=*:0/15
+
+[Install]
+WantedBy=timers.target

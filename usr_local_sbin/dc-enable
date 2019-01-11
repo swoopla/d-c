@@ -1,0 +1,22 @@
+#!/bin/bash
+
+function _enable_service () {
+  local _name=$1
+  systemctl enable _name
+  systemctl start _name
+}
+
+dockercompose=$1
+DOCKER_FOLDER='/opt/data/dockers'
+DC_FOLDER='/etc/docker-compose'
+
+test -d ${DOCKER_FOLDER}/${dockercompose} || exit 1
+test -d ${DC_FOLDER} && cd ${DC_FOLDER} || exit 1
+
+ln -sf ${DOCKER_FOLDER}/${dockercompose} . && \
+  cd ${dockercompose}
+
+_enable_service docker-compose@${dockercompose}.service
+_enable_service pull-docker-compose@${dockercompose}.service
+_enable_service pull-docker-compose@${dockercompose}.timer
+_enable_service pull-docker-compose@${dockercompose}.timer

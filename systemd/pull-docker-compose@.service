@@ -1,0 +1,16 @@
+[Unit]
+Description=Pulling images from %i
+
+# Requirements
+Requires=docker-compose@%i.service
+
+# Dependency ordering
+After=docker-compose@%i.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/etc/docker-compose/%i/
+ExecStart=/usr/local/bin/docker-compose pull --quiet --parallel
+
+[Install]
+WantedBy=multi-user.target
