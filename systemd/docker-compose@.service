@@ -6,7 +6,7 @@
 #https://www.freedesktop.org/software/systemd/man/systemd.unit.html#
 [Unit]
 #Description de l'Unité
-Description=dc-%i
+Description=%i service with docker-compose
 
 # Requirements
 Requires=docker.service
