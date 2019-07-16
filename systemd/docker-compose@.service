@@ -39,6 +39,9 @@ EnvironmentFile=/etc/environment
 # simple, forking, oneshot, dbus, notify ou idle sont les valeurs possibles de Type=.
 #Type=forking
 
+# Sets the process name ("syslog tag") to prefix log lines sent to the logging system or the kernel log buffer with. 
+SyslogIdentifier=%i
+
 #Démarrer le service.
 ExecStart=/usr/local/bin/docker-compose up
 
