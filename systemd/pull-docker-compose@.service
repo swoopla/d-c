@@ -1,5 +1,5 @@
 [Unit]
-Description=Pulling images from %i
+Description=Pulling images for %i
 
 # Requirements
 Requires=docker-compose@%i.service
