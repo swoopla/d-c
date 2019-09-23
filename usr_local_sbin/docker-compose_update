@@ -1,16 +1,19 @@
 #!/bin/bash
 
 echo  ">>> Update docker-compose"
-URL=$(${WGET} https://github.com/docker/compose/releases/ -O- |egrep "releases/download/[0-9]+.[0-9]+.[0-9]+/run.sh" | head -1 |awk -F\" '{ print "https://github.com"$2}')
-curl -sSL ${URL} |tee /usr/local/bin/docker-compose 1>/dev/null
+URL=$(${WGET} https://github.com/docker/compose/releases/ -O- |egrep "releases/download/[0-9]+.[0-9]+.[0-9]+/run.sh" |head -1 |awk -F\" '{ print "https://github.com"$2}')
+curl -sSL ${URL} |tee /usr/local/bin/docker-compose 1>/dev/null 2>&1
 chmod +x /usr/local/bin/docker-compose
 
+export DOCKER_RUN_OPTIONS='--security-opt apparmor:unconfined'
+sed -i -e "/^IMAGE/a DOCKER_RUN_OPTIONS='--security-opt apparmor:unconfined'" /usr/local/bin/docker-compose
+
 echo  ">>> Update bash_completion"
-curl -sSL https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/bash/docker-compose | sudo tee /etc/bash_completion.d/docker-compose 1>/dev/null
+curl -sSL https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/bash/docker-compose |tee /etc/bash_completion.d/docker-compose 1>/dev/null 2>&1
 
 echo  ">>> Update docker-machine"
 URL=$(${WGET} https://github.com/docker/machine/releases/ -O- |egrep "releases/download/v[0-9]+.[0-9]+.[0-9]+/docker-machine-Linux-x86_64" |head -1 |awk -F\" '{ print "https://github.com"$2}')
-curl -sSL ${URL} |tee /usr/local/bin/docker-machine
+curl -sSL ${URL} |tee /usr/local/bin/docker-machine 1>/dev/null 2>&1
 chmod +x /usr/local/bin/docker-machine
 
 echo  ">>> Update docker-machine bash_completion"
