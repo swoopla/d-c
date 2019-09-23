@@ -1,2 +1,5 @@
 # d-c
-d-c scripts
+
+D-C custom scripts for convert docker-compose in systemd service units
+
+
